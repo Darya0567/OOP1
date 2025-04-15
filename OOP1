@@ -1,0 +1,285 @@
+//main.cpp
+
+#include <iostream>
+#include <algorithm> // для функции swap
+#include <stdexcept> // для обработки исключительных ситуаций
+
+#include "Rectangle.h"
+#include "ShapeManager.h"
+
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "Russian"); // альтернативный вариант для поддержки русского языка
+
+    ShapeManager<Rectangle> manager;
+    
+    Rectangle r1, *r2 = nullptr;
+    int choice;
+    double x1, y1, x2, y2, dx, dy;
+
+    do {
+        cout << "Меню:\n";
+        cout << "1. Создать первый прямоугольник\n";
+        cout << "2. Создать второй прямоугольник\n";
+        cout << "3. Переместить все прямоугольники\n";
+        cout << "4. Вывести все прямоугольники\n";
+        cout << "5. Построить наименьший прямоугольник, содержащий оба прямоугольника\n";
+        cout << "6. Построить прямоугольник, являющийся пересечением двух прямоугольников\n";
+        cout << "7. Выход\n";
+        cout << "Выберите действие: ";
+        cin >> choice;
+
+        try {
+            switch (choice) {
+            case 1: {
+                cout << "Введите координаты первого прямоугольника (x1 y1 x2 y2): ";
+                cin >> x1 >> y1 >> x2 >> y2;
+                r1 = Rectangle(x1, y1, x2, y2);
+                manager.addShape(r1);
+                r1.print();
+                break;
+            }
+            case 2: {
+                cout << "Введите координаты второго прямоугольника (x1 y1 x2 y2): ";
+                cin >> x1 >> y1 >> x2 >> y2;
+                r2 = new Shape(x1, y1, x2, y2);
+                manager.addShape(*r2);
+                r2->print();
+                break;
+            }
+            case 3: {
+                cout << "Введите смещение для всех прямоугольников (dx dy): ";
+                cin >> dx >> dy;
+                manager.moveAll(dx, dy);
+                manager.printAll();
+                break;
+            }
+            case 4: {
+                manager.printAll();
+                break;
+            }
+            case 5: {
+                if (r2 == nullptr)
+                    break;
+                Rectangle boundingRect = r1.getBoundingRectangle(*r2);
+                cout << "Наименьший прямоугольник, содержащий оба прямоугольника:\n";
+                boundingRect.print();
+                break;
+            }
+            case 6: {
+                Rectangle intersectionRect = Rectangle::getIntersection(r1, *r2);
+                if (!intersectionRect.isEmpty()) {
+                    cout << "Прямоугольник, являющийся пересечением двух прямоугольников:\n";
+                    intersectionRect.print();
+                }
+                else {
+                    cout << "Прямоугольники не пересекаются" << endl;
+                }
+                break;
+            }
+            case 7: {
+                cout << "Выход из программы.\n";
+                break;
+            }
+            default: {
+                cout << "Неверный выбор. Пожалуйста, выберите снова.\n";
+            }
+            }
+        }
+        catch (const exception& e) {
+            cerr << "Ошибка: " << e.what() << endl;
+        }
+
+    } while (choice != 7);
+
+    return 0;
+}
+
+
+
+// Rectangle.cpp
+
+#include "Rectangle.h"
+#include <cmath>
+#include <algorithm>
+
+Rectangle::Rectangle() : x1(0), y1(0), x2(0), y2(0) {}
+
+Rectangle::Rectangle(double x1, double y1, double x2, double y2) : x1(x1), y1(y1), x2(x2), y2(y2) {
+    if (this->x1 > this->x2) std::swap(this->x1, this->x2);
+    if (this->y1 < this->y2) std::swap(this->y1, this->y2);
+}
+
+void Rectangle::move(double dx, double dy) {
+    x1 += dx;
+    x2 += dx;
+    y1 += dy;
+    y2 += dy;
+}
+
+void Rectangle::resize(double newX1, double newY1, double newX2, double newY2) {
+    x1 = newX1;
+    y1 = newY1;
+    x2 = newX2;
+    y2 = newY2;
+}
+
+/* метод для построения наименьшего прямоугольника, содержащего два заданных прямоугольника
+    static Rectangle getBoundingRectangle (const Rectangle& r1, const Rectangle& r2)
+    {
+        double newX1 = min(r1.x1, r2.x1);
+        double newY1 = max(r1.y1, r2.y1);
+        double newX2 = max(r1.x2, r2.x2);
+        double newY2 = min(r1.y2, r2.y2);
+        return Rectangle(newX1, newY1, newX2, newY2); } */
+
+Rectangle Rectangle::getBoundingRectangle(const Rectangle& other) const {
+    double newX1 = std::min(this->x1, other.x1);
+    double newY1 = std::max(this->y1, other.y1);
+    double newX2 = std::max(this->x2, other.x2);
+    double newY2 = std::min(this->y2, other.y2);
+    return Rectangle(newX1, newY1, newX2, newY2);
+}
+
+//метод для построения прямоугольника, являющегося пересечением двух прямоугольников
+    /*static Rectangle getIntersection(const Rectangle& r1, const Rectangle& r2)
+    {
+        double newX1 = max(r1.x1, r2.x1);
+        double newY1 = min(r1.y1, r2.y1);
+        double newX2 = min(r1.x2, r2.x2);
+        double newY2 = max(r1.y2, r2.y2);
+        if (newX1 <= newX2 && newY1 >= newY2)
+        {
+            return Rectangle(newX1, newY1, newX2, newY2);
+        }
+        else
+        {
+            return Rectangle(); // возвращаем пустой прямоугольник, если пересечения нет
+        }
+    }*/
+
+Rectangle Rectangle::getIntersection(const Rectangle& r1, const Rectangle& r2)
+{
+    double newX1 = std::max(r1.x1, r2.x1);
+    double newY1 = std::min(r1.y1, r2.y1);
+    double newX2 = std::min(r1.x2, r2.x2);
+    double newY2 = std::max(r1.y2, r2.y2);
+    if (newX1 <= newX2 && newY1 >= newY2) 
+    {
+        return Rectangle(newX1, newY1, newX2, newY2);
+    }
+    else 
+    {
+        return Rectangle();
+    }
+}
+
+void Rectangle::print() const {
+    std::cout << "Прямоугольник: (" << x1 << "," << y1 << ") - (" << x2 << "," << y2 << ")" << std::endl;
+}
+
+bool Rectangle::isEmpty() const {
+    return x1 == 0 && y1 == 0 && x2 == 0 && y2 == 0;
+}
+
+std::ostream& operator<<(std::ostream& os, const Rectangle& rect) {
+    os << "Прямоугольник: (" << rect.x1 << "," << rect.y1 << ") - (" << rect.x2 << "," << rect.y2 << ")";
+    return os;
+}
+
+
+// Rectangle.h
+
+#ifndef RECTANGLE_H
+#define RECTANGLE_H
+
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <stdexcept> // для обработки исключительных ситуаций
+
+class Rectangle {
+public:
+    Rectangle(); // Конструктор по умолчанию
+    Rectangle(double x1, double y1, double x2, double y2); // Конструктор с параметрами
+    
+    virtual void move(double dx, double dy); // Метод для перемещения прямоугольника
+    void resize(double newX1, double newY1, double newX2, double newY2); // Метод для изменения размеров
+    
+    Rectangle getBoundingRectangle(const Rectangle& other) const; // Метод для получения ограничивающего прямоугольника
+    static Rectangle getIntersection(const Rectangle& r1, const Rectangle& r2); // Метод лдя получения прямоугольника - пересечения
+      
+    void virtual print() const; // Метод для вывода информации о прямоугольнике
+    bool isEmpty() const; // Метод для проверки, пуст ли прямоугольник
+    
+    friend std::ostream& operator<<(std::ostream& os, const Rectangle& rect); // Перегрузка оператора вывода
+    
+
+protected:
+    double x1, y1, x2, y2; // Координаты
+};
+
+#endif 
+
+
+// Shape.h
+
+#ifndef SHAPE_H
+#define SHAPE_H
+
+#include <iostream>
+
+
+class Shape: public Rectangle {
+public:
+    Shape() : Shape(0, 0, 0, 0) {};
+    Shape(double x1, double y1, double x2, double y2)
+        : Rectangle(x1, y1, x2, y2) {}
+
+    virtual void move(double dx, double dy) override {
+        std::cout << "Прямоугольник move: " << std::endl;
+        Rectangle::move (dx, dy);
+    };
+    virtual void print() const override {
+
+        std::cout << "Прямоугольник override: (" << x1 << "," << y1 << ") - (" << x2 << "," << y2 << ")" << std::endl;
+    };
+    //virtual ~Shape() {} 
+};
+
+#endif 
+
+
+// ShapeManager.h
+
+#ifndef SHAPEMANAGER_H
+#define SHAPEMANAGER_H
+
+#include <vector>
+#include "Shape.h"
+
+template <class T>
+class ShapeManager {
+public:
+    void addShape(T& shape) {
+        shapes.push_back(&shape);
+    }
+
+    void moveAll(double dx, double dy) {
+        for (T* shape : shapes) {
+            shape->move(dx, dy);
+        }
+    }
+
+    void printAll() const {
+        for (const T* shape : shapes) {
+            shape->print();
+        }
+    }
+
+private:
+    std::vector<T*> shapes;
+};
+
+#endif 
