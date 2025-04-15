@@ -9,7 +9,8 @@
 
 using namespace std;
 
-int main() {
+int main() 
+{
     setlocale(LC_ALL, "Russian"); // альтернативный вариант для поддержки русского языка
 
     ShapeManager<Rectangle> manager;
@@ -18,7 +19,8 @@ int main() {
     int choice;
     double x1, y1, x2, y2, dx, dy;
 
-    do {
+    do 
+    {
         cout << "Меню:\n";
         cout << "1. Создать первый прямоугольник\n";
         cout << "2. Создать второй прямоугольник\n";
@@ -30,9 +32,12 @@ int main() {
         cout << "Выберите действие: ";
         cin >> choice;
 
-        try {
-            switch (choice) {
-            case 1: {
+        try 
+        {
+            switch (choice) 
+            {
+            case 1: 
+            {
                 cout << "Введите координаты первого прямоугольника (x1 y1 x2 y2): ";
                 cin >> x1 >> y1 >> x2 >> y2;
                 r1 = Rectangle(x1, y1, x2, y2);
@@ -40,7 +45,8 @@ int main() {
                 r1.print();
                 break;
             }
-            case 2: {
+            case 2: 
+            {
                 cout << "Введите координаты второго прямоугольника (x1 y1 x2 y2): ";
                 cin >> x1 >> y1 >> x2 >> y2;
                 r2 = new Shape(x1, y1, x2, y2);
@@ -48,18 +54,21 @@ int main() {
                 r2->print();
                 break;
             }
-            case 3: {
+            case 3: 
+            {
                 cout << "Введите смещение для всех прямоугольников (dx dy): ";
                 cin >> dx >> dy;
                 manager.moveAll(dx, dy);
                 manager.printAll();
                 break;
             }
-            case 4: {
+            case 4: 
+            {
                 manager.printAll();
                 break;
             }
-            case 5: {
+            case 5: 
+            {
                 if (r2 == nullptr)
                     break;
                 Rectangle boundingRect = r1.getBoundingRectangle(*r2);
@@ -67,27 +76,32 @@ int main() {
                 boundingRect.print();
                 break;
             }
-            case 6: {
+            case 6: 
+            {
                 Rectangle intersectionRect = Rectangle::getIntersection(r1, *r2);
                 if (!intersectionRect.isEmpty()) {
                     cout << "Прямоугольник, являющийся пересечением двух прямоугольников:\n";
                     intersectionRect.print();
                 }
-                else {
+                else 
+                {
                     cout << "Прямоугольники не пересекаются" << endl;
                 }
                 break;
             }
-            case 7: {
+            case 7: 
+            {
                 cout << "Выход из программы.\n";
                 break;
             }
-            default: {
+            default: 
+            {
                 cout << "Неверный выбор. Пожалуйста, выберите снова.\n";
             }
             }
         }
-        catch (const exception& e) {
+        catch (const exception& e) 
+        {
             cerr << "Ошибка: " << e.what() << endl;
         }
 
@@ -95,8 +109,6 @@ int main() {
 
     return 0;
 }
-
-
 
 // Rectangle.cpp
 
@@ -106,19 +118,22 @@ int main() {
 
 Rectangle::Rectangle() : x1(0), y1(0), x2(0), y2(0) {}
 
-Rectangle::Rectangle(double x1, double y1, double x2, double y2) : x1(x1), y1(y1), x2(x2), y2(y2) {
+Rectangle::Rectangle(double x1, double y1, double x2, double y2) : x1(x1), y1(y1), x2(x2), y2(y2) 
+{
     if (this->x1 > this->x2) std::swap(this->x1, this->x2);
     if (this->y1 < this->y2) std::swap(this->y1, this->y2);
 }
 
-void Rectangle::move(double dx, double dy) {
+void Rectangle::move(double dx, double dy) 
+{
     x1 += dx;
     x2 += dx;
     y1 += dy;
     y2 += dy;
 }
 
-void Rectangle::resize(double newX1, double newY1, double newX2, double newY2) {
+void Rectangle::resize(double newX1, double newY1, double newX2, double newY2) 
+{
     x1 = newX1;
     y1 = newY1;
     x2 = newX2;
@@ -132,9 +147,11 @@ void Rectangle::resize(double newX1, double newY1, double newX2, double newY2) {
         double newY1 = max(r1.y1, r2.y1);
         double newX2 = max(r1.x2, r2.x2);
         double newY2 = min(r1.y2, r2.y2);
-        return Rectangle(newX1, newY1, newX2, newY2); } */
+        return Rectangle(newX1, newY1, newX2, newY2); 
+    } */
 
-Rectangle Rectangle::getBoundingRectangle(const Rectangle& other) const {
+Rectangle Rectangle::getBoundingRectangle(const Rectangle& other) const 
+{
     double newX1 = std::min(this->x1, other.x1);
     double newY1 = std::max(this->y1, other.y1);
     double newX2 = std::max(this->x2, other.x2);
@@ -175,19 +192,21 @@ Rectangle Rectangle::getIntersection(const Rectangle& r1, const Rectangle& r2)
     }
 }
 
-void Rectangle::print() const {
+void Rectangle::print() const 
+{
     std::cout << "Прямоугольник: (" << x1 << "," << y1 << ") - (" << x2 << "," << y2 << ")" << std::endl;
 }
 
-bool Rectangle::isEmpty() const {
+bool Rectangle::isEmpty() const 
+{
     return x1 == 0 && y1 == 0 && x2 == 0 && y2 == 0;
 }
 
-std::ostream& operator<<(std::ostream& os, const Rectangle& rect) {
+std::ostream& operator<<(std::ostream& os, const Rectangle& rect) 
+{
     os << "Прямоугольник: (" << rect.x1 << "," << rect.y1 << ") - (" << rect.x2 << "," << rect.y2 << ")";
     return os;
 }
-
 
 // Rectangle.h
 
@@ -199,7 +218,8 @@ std::ostream& operator<<(std::ostream& os, const Rectangle& rect) {
 #include <algorithm>
 #include <stdexcept> // для обработки исключительных ситуаций
 
-class Rectangle {
+class Rectangle 
+{
 public:
     Rectangle(); // Конструктор по умолчанию
     Rectangle(double x1, double y1, double x2, double y2); // Конструктор с параметрами
@@ -214,14 +234,11 @@ public:
     bool isEmpty() const; // Метод для проверки, пуст ли прямоугольник
     
     friend std::ostream& operator<<(std::ostream& os, const Rectangle& rect); // Перегрузка оператора вывода
-    
-
 protected:
     double x1, y1, x2, y2; // Координаты
 };
 
 #endif 
-
 
 // Shape.h
 
@@ -230,26 +247,26 @@ protected:
 
 #include <iostream>
 
-
-class Shape: public Rectangle {
+class Shape: public Rectangle 
+{
 public:
     Shape() : Shape(0, 0, 0, 0) {};
     Shape(double x1, double y1, double x2, double y2)
         : Rectangle(x1, y1, x2, y2) {}
 
-    virtual void move(double dx, double dy) override {
+    virtual void move(double dx, double dy) override 
+    {
         std::cout << "Прямоугольник move: " << std::endl;
         Rectangle::move (dx, dy);
     };
-    virtual void print() const override {
-
+    virtual void print() const override 
+    {
         std::cout << "Прямоугольник override: (" << x1 << "," << y1 << ") - (" << x2 << "," << y2 << ")" << std::endl;
     };
     //virtual ~Shape() {} 
 };
 
 #endif 
-
 
 // ShapeManager.h
 
@@ -260,20 +277,26 @@ public:
 #include "Shape.h"
 
 template <class T>
-class ShapeManager {
+class ShapeManager 
+{
 public:
-    void addShape(T& shape) {
+    void addShape(T& shape) 
+    {
         shapes.push_back(&shape);
     }
 
-    void moveAll(double dx, double dy) {
-        for (T* shape : shapes) {
+    void moveAll(double dx, double dy) 
+    {
+        for (T* shape : shapes) 
+        {
             shape->move(dx, dy);
         }
     }
 
-    void printAll() const {
-        for (const T* shape : shapes) {
+    void printAll() const 
+    {
+        for (const T* shape : shapes) 
+        {
             shape->print();
         }
     }
